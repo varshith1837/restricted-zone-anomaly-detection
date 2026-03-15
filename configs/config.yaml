@@ -1,0 +1,105 @@
+# ============================================
+# Sentinel Vision — Central Configuration
+# ============================================
+
+# ----- Paths -----
+paths:
+  face_dataset: "data/faces"
+  intruders_dir: "data/intruders"
+  models_dir: "models"
+  results_dir: "results"
+  metrics_dir: "results/metrics"
+  plots_dir: "results/plots"
+
+# ----- Person Detection (YOLOv8) -----
+detection:
+  model_path: "models/yolov8n.pt"
+  confidence_threshold: 0.50
+  iou_threshold: 0.45
+  target_classes: [0]  # 0 = person in COCO
+  input_size: 640
+  device: "auto"  # "cpu", "cuda", or "auto"
+
+# ----- Face Detection (MTCNN) -----
+face_detection:
+  min_face_size: 40
+  thresholds: [0.6, 0.7, 0.7]  # P-Net, R-Net, O-Net
+  device: "auto"
+
+# ----- Face Recognition -----
+recognition:
+  embedding_model: "vggface2"  # "vggface2" or "casia-webface"
+  embedding_dim: 512
+  classifier_type: "svm"  # "svm" or "knn"
+  classifier_path: "models/face_classifier.pkl"
+  unknown_threshold: 0.5  # Distance above this = Unknown
+  knn_neighbors: 5
+
+# ----- Pose Estimation (MediaPipe) -----
+pose:
+  min_detection_confidence: 0.5
+  min_tracking_confidence: 0.5
+  model_complexity: 1  # 0=Lite, 1=Full, 2=Heavy
+
+# ----- Activity Classification -----
+activity:
+  classifier_type: "random_forest"  # "random_forest" or "lstm"
+  classifier_path: "models/activity_classifier.pkl"
+  categories:
+    - "normal_walking"
+    - "running"
+    - "loitering"
+    - "suspicious"
+    - "falling"
+  sequence_length: 30  # frames for LSTM
+  feature_window: 15   # frames for temporal features
+
+# ----- Zone Monitoring -----
+zone:
+  max_points: 4
+  alert_cooldown_seconds: 5
+  threat_weights:
+    unknown_face: 0.4
+    suspicious_activity: 0.35
+    zone_intrusion: 0.25
+  threat_threshold: 0.6  # Score above this triggers alert
+
+# ----- Training -----
+training:
+  face_classifier:
+    test_size: 0.2
+    augmentation: true
+    augmentation_factor: 5  # multiply dataset size
+    cross_validation_folds: 5
+  activity_classifier:
+    test_size: 0.2
+    n_estimators: 200  # Random Forest trees
+    max_depth: 20
+    lstm_epochs: 50
+    lstm_batch_size: 32
+    lstm_hidden_size: 128
+  yolo:
+    epochs: 50
+    batch_size: 16
+    img_size: 640
+    learning_rate: 0.001
+
+# ----- GUI -----
+gui:
+  window_title: "Sentinel Vision — AI Security System"
+  window_size: [1200, 800]
+  sidebar_width: 260
+  video_display_size: [800, 600]
+  theme:
+    primary: "#00adb5"
+    danger: "#ff4d4d"
+    background: "#1e1e2e"
+    surface: "#2b2b2b"
+    text: "#ffffff"
+    muted: "#888888"
+
+# ----- Camera -----
+camera:
+  source: 0  # 0 = default webcam, or path to video file
+  resize_factor: 0.50  # downscale for processing speed
+  process_every_n_frames: 2  # skip frames for performance
